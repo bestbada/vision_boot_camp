@@ -7,7 +7,7 @@ import os
 output_dir = 'preprocessed_samples'
 os.makedirs(output_dir, exist_ok=True)
 
-# 2. 데이터셋 로드 (알짜배기 5장이 모일 때까지 스트리밍)
+# 2. 데이터셋 로드 (사진 5장이 저장될 때까지 스트리밍)
 dataset = load_dataset("ethz/food101", split="train", streaming=True)
 count = 0
 
