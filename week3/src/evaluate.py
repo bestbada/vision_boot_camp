@@ -1,6 +1,7 @@
+import sys
 import os
 from ultralytics import YOLO
-from config.config import MODEL_WEIGHT_PATH, DATA_YAML_PATH, TRAIN_RESULTS_CSV, OUTPUT_DATA_DIR
+from config.config import get_weight_path, DATA_YAML_PATH, OUTPUT_DATA_DIR
 from utils.plot_metrics import plot_training_curve, plot_class_performance
 
 
@@ -20,15 +21,20 @@ def evaluate_model(weight_path, data_yaml_path):
 
 
 if __name__ == "__main__":
-    os.makedirs(OUTPUT_DATA_DIR, exist_ok=True)
+    # 의미: 터미널에서 "python -m src.evaluate 32"처럼 배치 번호를 인자로 받음
+    # 사용 이유: config.py를 안 건드리고, 실행할 때마다 원하는 배치를 골라 테스트하기 위함
+    batch_size = sys.argv[1] if len(sys.argv) > 1 else "16"
+    weight_path = get_weight_path(batch_size)
 
-    metrics, class_names = evaluate_model(MODEL_WEIGHT_PATH, DATA_YAML_PATH)
+    os.makedirs(OUTPUT_DATA_DIR, exist_ok=True)
+    print(f"=== batch{batch_size} 모델 평가 ===")
+    metrics, class_names = evaluate_model(weight_path, DATA_YAML_PATH)
 
     plot_training_curve(
-        TRAIN_RESULTS_CSV,
-        save_path=os.path.join(OUTPUT_DATA_DIR, "training_curve.png")
+        f"runs/detect/batch{batch_size}/results.csv",
+        save_path=os.path.join(OUTPUT_DATA_DIR, f"training_curve_batch{batch_size}.png")
     )
     plot_class_performance(
         metrics, class_names,
-        save_path=os.path.join(OUTPUT_DATA_DIR, "class_performance.png")
+        save_path=os.path.join(OUTPUT_DATA_DIR, f"class_performance_batch{batch_size}.png")
     )

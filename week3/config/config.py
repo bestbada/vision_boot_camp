@@ -10,9 +10,12 @@ WORKSPACE = "tomatoes-g0kjm"
 PROJECT = "tomatoes-detection-ml1e1"
 VERSION = 1
 
-MODEL_WEIGHT_PATH = "weights/best.pt"
-DATA_YAML_PATH = "dataset/data.yaml"                    # 추가
-TRAIN_RESULTS_CSV = "runs/detect/train-5/results.csv"   # 추가
+def get_weight_path(batch_size):
+    # 의미: 배치 크기를 인자로 받아 해당 폴더의 best.pt 경로를 돌려줌
+    # 사용 이유: 배치별로 config.py를 매번 손으로 고치지 않기 위함
+    return f"weights/batch{batch_size}/best.pt"
+
+DATA_YAML_PATH = "dataset/data.yaml"
 
 INPUT_DATA_DIR = "input_data"
 OUTPUT_DATA_DIR = "output"

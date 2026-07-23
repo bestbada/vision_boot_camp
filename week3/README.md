@@ -2,25 +2,26 @@
 
 Roboflow의 Tomatoes Detection 데이터셋으로 YOLOv8n 모델을 학습시켜, 이미지 속 토마토를 5단계 숙성도로 분류하고 탐지하는 프로젝트입니다.
 
-## 프로젝트 구조
-
 week3/
 ├── config/
-│ └── config.py # 경로, API 키 등 설정값 중앙 관리
+│   └── config.py            # 경로, API 키 등 설정값 중앙 관리
 ├── src/
-│ ├── train.py # Roboflow 데이터셋 다운로드 및 YOLOv8n 학습
-│ ├── evaluate.py # test 데이터 기준 성능 평가 및 그래프 생성
-│ └── infer.py # 학습된 모델로 이미지에서 탐지 실행
+│   ├── train.py              # 배치 크기별 YOLOv8n 학습 (python -m src.train <batch>)
+│   ├── evaluate.py           # 배치별 성능 평가 및 그래프 생성 (python -m src.evaluate <batch>)
+│   └── infer.py              # 배치별 모델로 추론 실행 (python -m src.infer <batch>)
 ├── utils/
-│ ├── visualize.py # 탐지 박스/라벨을 이미지에 그리는 함수
-│ └── plot_metrics.py # 학습 곡선 및 클래스별 성능 그래프 함수
+│   ├── visualize.py
+│   └── plot_metrics.py
 ├── tests/
-│ ├── test_pipeline.py # evaluate/infer 관련 정상·비정상 케이스 테스트
-│ └── test_visualize.py # visualize 관련 정상 케이스 테스트
-├── weights/best.pt # 학습된 모델 가중치 (gitignore)
-├── dataset/ # Roboflow 데이터셋 (gitignore)
-├── input_data/, output/ # 입출력 파일 (gitignore, .gitkeep만 유지)
-└── .env # ROBOFLOW_API_KEY 등 민감정보 (gitignore)
+│   ├── test_pipeline.py
+│   └── test_visualize.py
+├── weights/
+│   ├── batch8/best.pt
+│   ├── batch16/best.pt
+│   └── batch32/best.pt       # 배치별 학습된 가중치 (gitignore)
+├── runs/detect/batch8, batch16, batch32/  # 배치별 학습 로그 (gitignore)
+├── dataset/, input_data/, output/         # (gitignore)
+└── .env
 
 ## 데이터셋
 
@@ -38,30 +39,25 @@ cp .env.example .env
 # .env 안에 ROBOFLOW_API_KEY 입력
 
 python -m src.train      # 데이터 다운로드 + 모델 학습
-python -m src.evaluate   # test 데이터로 성능 평가 + 그래프 저장
-python -m src.infer      # 임의 이미지로 탐지 실행
+python -m src.evaluate 32   # test 데이터로 성능 평가 + 그래프 저장
+python -m src.evaluate 16
+python -m src.evaluate 8
 
-python3 -m pytest tests/  # 테스트 실행
+python -m src.infer 32      # 임의 이미지로 탐지 실행
+python -m src.infer 16
+python -m src.infer 8
+
+python3 -m pytest tests/ -v  # 테스트 실행
 ```
 
-## 결과
+## 배치 크기별 성능 비교
 
-전체 평균 (test set 기준):
+| Batch Size | mAP50 | mAP50-95 | Precision | Recall |
+|------------|-------|----------|-----------|--------|
+|      8     | 0.9078|  0.7642  |  0.8203   | 0.8511 |
+|      16    | 0.9008|  0.7591  |  0.8479   | 0.8437 |
+|      32    | 0.9006|  0.7560  |  0.8034   | 0.8448 |
 
-| 지표 | 값 |
-|---|---|
-| mAP50 | 0.9008 |
-| mAP50-95 | 0.7591 |
-| Precision | 0.8479 |
-| Recall | 0.8437 |
-
-클래스별 AP50:
-
-| 클래스 | AP50 |
-|---|---|
-| tomato_half_ripe | 0.8694 |
-| tomato_overripe | 0.8882 |
-| tomato_ripe | 0.9064 |
-| tomato_rotten | 0.9049 |
-| tomato_unripe | 0.9350 |
+- 배치가 작을수록(8) mAP50-95가 가장 높고 Recall도 우수함
+- 배치가 클수록(32) Precision이 다소 떨어짐
 
