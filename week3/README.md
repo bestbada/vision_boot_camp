@@ -1,34 +1,26 @@
 # Week 3 - 토마토 숙성도 탐지 프로젝트
 
+Roboflow의 Tomatoes Detection 데이터셋으로 YOLOv8n 모델을 학습시켜, 이미지 속 토마토를 5단계 숙성도로 분류하고 탐지하는 프로젝트입니다.
+
+## 프로젝트 구조
+
 week3/
-├── src/
-│   ├── train.py       # 모델 학습
-│   ├── evaluate.py    # 성능 평가 및 시각화
-│   └── infer.py       # 추론 실행
-├── utils/
-│   ├── visualize.py   # 탐지 결과 시각화 함수
-│   └── plot_metrics.py # 성능 그래프 함수
 ├── config/
-│   └── config.py       # 경로/설정값 중앙 관리
+│ └── config.py # 경로, API 키 등 설정값 중앙 관리
+├── src/
+│ ├── train.py # Roboflow 데이터셋 다운로드 및 YOLOv8n 학습
+│ ├── evaluate.py # test 데이터 기준 성능 평가 및 그래프 생성
+│ └── infer.py # 학습된 모델로 이미지에서 탐지 실행
+├── utils/
+│ ├── visualize.py # 탐지 박스/라벨을 이미지에 그리는 함수
+│ └── plot_metrics.py # 학습 곡선 및 클래스별 성능 그래프 함수
 ├── tests/
-│   ├── test_visualize.py       # 정상 케이스 테스트
-│   └── test_abnormal_input.py  # 비정상 입력 테스트
-├── weights/best.pt      # 학습된 모델 (gitignore)
-├── dataset/              # Roboflow 데이터셋 (gitignore)
-├── input_data/, output/  # 입출력 (gitignore, .gitkeep만 유지)
-└── .env                  # API 키 등 민감정보 (gitignore)
-
-## 실행 방법
-\`\`\`bash
-pip install -r requirements.txt
-python -m src.train      # 학습
-python -m src.evaluate   # 평가 + 그래프
-python -m src.infer      # 추론
-pytest tests/            # 테스트
-\`\`\`
-
-## 결과
-mAP50: 0.9008 / Precision: 0.8479 / Recall: 0.8437
+│ ├── test_pipeline.py # evaluate/infer 관련 정상·비정상 케이스 테스트
+│ └── test_visualize.py # visualize 관련 정상 케이스 테스트
+├── weights/best.pt # 학습된 모델 가중치 (gitignore)
+├── dataset/ # Roboflow 데이터셋 (gitignore)
+├── input_data/, output/ # 입출력 파일 (gitignore, .gitkeep만 유지)
+└── .env # ROBOFLOW_API_KEY 등 민감정보 (gitignore)
 
 ## 데이터셋
 
@@ -73,10 +65,3 @@ python3 -m pytest tests/  # 테스트 실행
 | tomato_rotten | 0.9049 |
 | tomato_unripe | 0.9350 |
 
-`output/training_curve.png` — epoch별 precision/recall 변화
-`output/class_performance.png` — 클래스별 precision/recall 비교
-
-## 한계 및 다음 단계
-
-- `tomato_overripe` 클래스는 테스트셋에 6장(18개 인스턴스)뿐이라 다른 클래스 대비 데이터가 적음. 추가 데이터 확보 시 성능 개선 여지 있음.
-- 4주차에는 이 모델을 FastAPI 기반 API로 배포하여, 이미지를 업로드하면 숙성도 판별 결과를 반환하는 서비스로 확장할 예정.
