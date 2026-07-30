@@ -1,0 +1,23 @@
+# 환경 변수 파일(보안) 업로드 차단
+.env
+
+# input_data 및 output 폴더 안의 모든 파일 업로드 차단
+input_data/*
+output/*
+
+!input_data/.gitkeep
+!output/.gitkeep
+
+# 모델 가중치 (용량 큼, 재현 가능한 산출물)
+weights/*
+!weights/.gitkeep
+
+# Roboflow에서 받은 데이터셋 (용량 큼, 재현 가능)
+dataset/
+
+# 학습/평가 로그 (재현 가능한 산출물)
+runs/
+
+# 파이썬 캐시 파일
+__pycache__/
+*.pyc
