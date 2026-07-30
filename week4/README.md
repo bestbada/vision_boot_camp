@@ -4,6 +4,7 @@
 
 ## 프로젝트 구조
 week4/
+├── app.py
 ├── config/
 │   └── config.py              # 경로, API 키, 클래스별 confidence 임계값 등 설정 중앙 관리
 ├── src/
@@ -11,7 +12,6 @@ week4/
 │   ├── evaluate.py              # test 데이터 기준 성능 평가 및 그래프 생성
 │   ├── infer.py                  # 추론 실행 + 박스 시각화 + depth 후처리 연결
 │   ├── depth_processing.py       # 탐지 결과를 depth map/포인트 클라우드로 변환
-│   └── view_cloud.py             # 저장된 포인트 클라우드를 Open3D로 인터랙티브하게 확인
 ├── utils/
 │   ├── visualize.py              # 탐지 박스 시각화 (클래스별 confidence 필터링 지원)
 │   ├── plot_metrics.py           # 학습 곡선 및 클래스별 성능 그래프
@@ -71,7 +71,7 @@ DEFAULT_CONF = 0.5
 - 가우시안 블러로 픽셀 단위 노이즈를 완화함
 - `(X, Y, Z)` 3D 포인트 클라우드를 생성하고 `.npy`로 저장함
 - matplotlib 3D 산점도로 정적 이미지를 저장함 (`visualize_point_cloud_3d`)
-- Open3D 기반 인터랙티브 뷰어를 제공함 (`src/view_cloud.py`)
+- Plotly 기반 인터랙티브 3D 시각화를 Streamlit 앱에 내장 (`utils/depth_utils.py`의 `build_plotly_point_cloud`)
 
 **한계**: 이 방식은 실제 깊이 센서 값이 아니라 밝기 기반 근사치이며, 토마토 표면의 하이라이트(반사광)와 그림자를 각각 "높음"/"낮음"으로 잘못 해석해 실제 토마토의 둥근 3D 형태를 정확히 복원하지는 못함. 
 
@@ -87,7 +87,7 @@ python -m src.train 16          # 데이터 다운로드 + 학습
 python -m src.evaluate 16       # 성능 평가 + 그래프 저장
 python -m src.infer batch16_augmented   # 추론 + 박스 시각화 + depth 후처리
 
-python -m src.view_cloud output/depth/point_cloud_batch16_augmented.npy   # 포인트 클라우드 인터랙티브 확인
+streamlit run app.py   # 제품 실행 (이미지 업로드 → 탐지 결과 + depth map + 3D 포인트 클라우드 확인)
 
 python3 -m pytest tests/ -v     # 전체 테스트 실행
 ```

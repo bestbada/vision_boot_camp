@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D  # 3D 플롯 활성화용 (import만 해도 등록됨)
-
+import plotly.graph_objects as go
 
 def generate_depth_map(image):
     if image is None:
@@ -46,3 +46,35 @@ def visualize_point_cloud_3d(points_3d, save_path=None, sample_step=10):
     if save_path:
         plt.savefig(save_path, dpi=120)
     plt.close(fig)
+def build_plotly_point_cloud(points_3d, sample_step=10):
+    # 의미: (H, W, 3) 포인트 클라우드를 Plotly의 3D 산점도 Figure로 변환
+    # 사용 이유: matplotlib(정적 이미지)이나 Open3D(별도 데스크탑 창)와 달리,
+    #           Plotly는 브라우저 안에서 바로 마우스로 회전/확대가 가능해
+    #           Streamlit 웹 앱에 그대로 삽입할 수 있음
+    sampled = points_3d[::sample_step, ::sample_step]
+
+    X = sampled[:, :, 0].flatten()
+    Y = sampled[:, :, 1].flatten()
+    Z = sampled[:, :, 2].flatten()
+
+    fig = go.Figure(data=[go.Scatter3d(
+        x=X, y=Y, z=Z,
+        mode='markers',
+        marker=dict(
+            size=2,
+            color=Z,           # 의미: 밝기(Z)값에 따라 색을 다르게 입혀 높낮이를 구분
+            colorscale='Jet',
+            opacity=0.8,
+        )
+    )])
+
+    fig.update_layout(
+        scene=dict(
+            xaxis_title='X (pixel)',
+            yaxis_title='Y (pixel)',
+            zaxis_title='Z (밝기 기반 깊이)',
+        ),
+        margin=dict(l=0, r=0, b=0, t=0),
+    )
+
+    return fig
