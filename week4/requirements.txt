@@ -1,0 +1,9 @@
+ultralytics
+opencv-python
+roboflow
+python-dotenv
+pandas
+matplotlib
+pytest
+streamlit
+plotly
