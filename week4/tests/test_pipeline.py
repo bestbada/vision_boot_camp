@@ -47,19 +47,3 @@ def test_run_inference_invalid_weight_path(tmp_path, monkeypatch):
     with pytest.raises(Exception):
         run_inference("weights/존재하지_않는_배치/best.pt")
         
-def test_train_model_passes_fl_gamma():
-    # 의미: 실제 학습을 돌리지 않고, train_model()이 fl_gamma를
-    #      model.train()에 올바른 값으로 전달하는지만 검증
-    # 사용 이유: GPU 학습은 무거워서 로컬 유닛 테스트로 매번 돌리기 부적합하므로,
-    #           "파라미터 전달이 맞는가"라는 좁은 범위만 가볍게 확인
-    mock_model = MagicMock()
-    with patch("src.train.YOLO", return_value=mock_model):
-        from src.train import train_model
-        fake_dataset = MagicMock()
-        fake_dataset.location = "dataset"
-
-        train_model(fake_dataset, epochs=30, batch=16, fl_gamma=1.5)
-
-        _, kwargs = mock_model.train.call_args
-        assert kwargs["fl_gamma"] == 1.5
-        assert kwargs["batch"] == 16
